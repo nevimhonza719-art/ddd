@@ -2988,13 +2988,31 @@ Library:AddToRegistry(Inner, {
     BorderColor3 = 'AccentColor';
     });
 
+    local Label1Text = 'tomik';
+    local Label2Text = '.win';
+
+    if Config.Title and Config.Title ~= 'No title' and Config.Title ~= 'oxt' and Config.Title ~= 'oxtyocin' then
+        if Config.Title:find('%.') then
+            local DotIdx = Config.Title:find('%.');
+            Label1Text = Config.Title:sub(1, DotIdx - 1);
+            Label2Text = Config.Title:sub(DotIdx);
+        else
+            Label1Text = Config.Title;
+            Label2Text = '';
+        end;
+    end;
+    if Config.TitleMain then Label1Text = Config.TitleMain end;
+    if Config.TitleAccent then Label2Text = Config.TitleAccent end;
+
+    local Label1Width = Library:GetTextBounds(Label1Text, Library.Font, 16);
+    local Label2Width = Library:GetTextBounds(Label2Text, Library.Font, 16);
+
     local CenteredTitle = Library:Create('Frame', {
         Name = 'CenteredTitle';
         BackgroundTransparency = 1;
         AnchorPoint = Vector2.new(0.5, 0);
         Position = UDim2.new(0.5, 0, 0, 0);
-        Size = UDim2.new(0, 0, 0, 25);
-        AutomaticSize = Enum.AutomaticSize.X;
+        Size = UDim2.new(0, Label1Width + Label2Width, 0, 25);
         ZIndex = 1;
         Parent = Inner;
     });
@@ -3008,41 +3026,39 @@ Library:AddToRegistry(Inner, {
         Parent = CenteredTitle;
     });
 
-    local TitleAccent = Library:Create('TextLabel', {
-        Name = 'TitleAccent';
+    local Label1 = Library:Create('TextLabel', {
+        Name = 'TitleMain';
         BackgroundTransparency = 1;
         Font = Library.Font;
-        Text = Config.TitleAccent or 'oxt';
-        TextColor3 = Library.AccentColor;
+        Text = Label1Text;
+        TextColor3 = Library.FontColor;
         TextSize = 16;
         TextStrokeTransparency = 0;
-        Size = UDim2.new(0, 0, 1, 0);
-        AutomaticSize = Enum.AutomaticSize.X;
+        Size = UDim2.new(0, Label1Width, 1, 0);
         LayoutOrder = 1;
         ZIndex = 1;
         Parent = CenteredTitle;
     });
 
-    Library:ApplyTextStroke(TitleAccent);
-    Library:AddToRegistry(TitleAccent, { TextColor3 = 'AccentColor' });
+    Library:ApplyTextStroke(Label1);
+    Library:AddToRegistry(Label1, { TextColor3 = 'FontColor' });
 
-    local TitleRest = Library:Create('TextLabel', {
-        Name = 'TitleRest';
+    local Label2 = Library:Create('TextLabel', {
+        Name = 'TitleAccent';
         BackgroundTransparency = 1;
         Font = Library.Font;
-        Text = Config.TitleRest or (Config.Title and Config.Title ~= 'No title' and Config.Title ~= 'oxt' and Config.Title ~= 'oxtyocin' and Config.Title) or 'yocin';
-        TextColor3 = Library.FontColor;
+        Text = Label2Text;
+        TextColor3 = Library.AccentColor;
         TextSize = 16;
         TextStrokeTransparency = 0;
-        Size = UDim2.new(0, 0, 1, 0);
-        AutomaticSize = Enum.AutomaticSize.X;
+        Size = UDim2.new(0, Label2Width, 1, 0);
         LayoutOrder = 2;
         ZIndex = 1;
         Parent = CenteredTitle;
     });
 
-    Library:ApplyTextStroke(TitleRest);
-    Library:AddToRegistry(TitleRest, { TextColor3 = 'FontColor' });
+    Library:ApplyTextStroke(Label2);
+    Library:AddToRegistry(Label2, { TextColor3 = 'AccentColor' });
 
     local SubTitleLabel = Library:Create('TextLabel', {
         Name = 'SubTitleLabel';
@@ -3129,16 +3145,24 @@ Library:AddToRegistry(Inner, {
         Window : SetTitle(Title);
     end;
 
-    function Window : SetTitle(AccentText, RestText)
-        if RestText then
-            TitleAccent.Text = AccentText or '';
-            TitleRest.Text = RestText or '';
-        elseif type(AccentText) == 'string' and AccentText:find('^oxt') then
-            TitleAccent.Text = 'oxt';
-            TitleRest.Text = AccentText:sub(4);
+    function Window : SetTitle(MainPart, AccentPart)
+        if AccentPart then
+            Label1.Text = MainPart or '';
+            Label2.Text = AccentPart or '';
+        elseif type(MainPart) == 'string' and MainPart:find('%.') then
+            local DotIdx = MainPart:find('%.');
+            Label1.Text = MainPart:sub(1, DotIdx - 1);
+            Label2.Text = MainPart:sub(DotIdx);
         else
-            TitleRest.Text = AccentText or '';
+            Label1.Text = MainPart or '';
+            Label2.Text = '';
         end;
+
+        local W1 = Library:GetTextBounds(Label1.Text, Library.Font, 16);
+        local W2 = Library:GetTextBounds(Label2.Text, Library.Font, 16);
+        Label1.Size = UDim2.new(0, W1, 1, 0);
+        Label2.Size = UDim2.new(0, W2, 1, 0);
+        CenteredTitle.Size = UDim2.new(0, W1 + W2, 0, 25);
     end;
 
     function Window : SetSubTitle(Text, Color)

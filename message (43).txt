@@ -2949,7 +2949,7 @@ if type(Config.TabPadding) ~= 'number' then Config.TabPadding = 0 end
 if type(Config.MenuFadeTime) ~= 'number' then Config.MenuFadeTime = 0.2 end
 
 if typeof(Config.Position) ~= 'UDim2' then Config.Position = UDim2.fromOffset(175, 50) end
-if typeof(Config.Size) ~= 'UDim2' then Config.Size = UDim2.fromOffset(550, 600) end
+Config.Size = Config.Size or UDim2.fromOffset(550, 600);
 
 if Config.Center then
 Config.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -2988,34 +2988,33 @@ Library:AddToRegistry(Inner, {
     BorderColor3 = 'AccentColor';
     });
 
-    local defaultAlignment = Config.Center and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left;
-    local titleAlignment = Config.TitleAlignment or defaultAlignment;
-
     local WindowLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 7, 0, 0);
-        Size = UDim2.new(1, -14, 0, 25);
+        Position = UDim2.new(0, 0, 0, 0);
+        Size = UDim2.new(1, 0, 0, 25);
         Text = Config.Title or '';
-        TextXAlignment = titleAlignment;
+        TextXAlignment = Config.TitleAlignment or Enum.TextXAlignment.Center;
         RichText = true;
         ZIndex = 1;
         Parent = Inner;
     });
 
-    local SubTitleLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 7, 0, 0);
-        Size = UDim2.new(1, -14, 0, 25);
-        Text = Config.SubTitle or '';
-        TextColor3 = Config.SubTitleColor or Color3.fromRGB(18, 72, 170);
+    local SubTitleLabel = Library:Create('TextLabel', {
+        Name = 'SubTitleLabel';
+        BackgroundTransparency = 1;
+        Font = Library.Font;
+        TextSize = 14;
+        TextColor3 = Config.SubTitleColor or Color3.fromRGB(20, 75, 170);
         TextXAlignment = Enum.TextXAlignment.Right;
+        AnchorPoint = Vector2.new(1, 0);
+        Position = UDim2.new(1, -10, 0, 0);
+        Size = UDim2.new(0, 100, 0, 25);
+        Text = Config.SubTitle or '';
         RichText = true;
-        Visible = (Config.SubTitle ~= nil and Config.SubTitle ~= '');
         ZIndex = 2;
         Parent = Inner;
     });
 
-    if Library.RegistryMap[SubTitleLabel] then
-        Library.RegistryMap[SubTitleLabel].Properties.TextColor3 = nil;
-    end;
+    Library:ApplyTextStroke(SubTitleLabel);
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
@@ -3075,11 +3074,11 @@ Library:AddToRegistry(Inner, {
     });
 
     function Window : SetWindowTitle(Title)
-        WindowLabel.Text = Title;
+        WindowLabel.Text = Title or '';
     end;
 
     function Window : SetTitle(Text, Alignment)
-        WindowLabel.Text = Text;
+        WindowLabel.Text = Text or '';
         if Alignment then
             WindowLabel.TextXAlignment = Alignment;
         end;
@@ -3087,7 +3086,6 @@ Library:AddToRegistry(Inner, {
 
     function Window : SetSubTitle(Text, Color)
         SubTitleLabel.Text = Text or '';
-        SubTitleLabel.Visible = (Text ~= nil and Text ~= '');
         if Color then
             SubTitleLabel.TextColor3 = Color;
         end;

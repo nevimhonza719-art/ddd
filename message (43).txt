@@ -2988,33 +2988,85 @@ Library:AddToRegistry(Inner, {
     BorderColor3 = 'AccentColor';
     });
 
-    local WindowLabel = Library:CreateLabel({
-        Position = UDim2.new(0, 0, 0, 0);
-        Size = UDim2.new(1, 0, 0, 25);
-        Text = Config.Title or '';
-        TextXAlignment = Config.TitleAlignment or Enum.TextXAlignment.Center;
-        RichText = true;
+    local CenteredTitle = Library:Create('Frame', {
+        Name = 'CenteredTitle';
+        BackgroundTransparency = 1;
+        AnchorPoint = Vector2.new(0.5, 0);
+        Position = UDim2.new(0.5, 0, 0, 0);
+        Size = UDim2.new(0, 0, 0, 25);
+        AutomaticSize = Enum.AutomaticSize.X;
         ZIndex = 1;
         Parent = Inner;
     });
+
+    Library:Create('UIListLayout', {
+        FillDirection = Enum.FillDirection.Horizontal;
+        HorizontalAlignment = Enum.HorizontalAlignment.Center;
+        VerticalAlignment = Enum.VerticalAlignment.Center;
+        SortOrder = Enum.SortOrder.LayoutOrder;
+        Padding = UDim.new(0, 0);
+        Parent = CenteredTitle;
+    });
+
+    local TitleAccent = Library:Create('TextLabel', {
+        Name = 'TitleAccent';
+        BackgroundTransparency = 1;
+        Font = Library.Font;
+        Text = Config.TitleAccent or 'oxt';
+        TextColor3 = Library.AccentColor;
+        TextSize = 16;
+        TextStrokeTransparency = 0;
+        Size = UDim2.new(0, 0, 1, 0);
+        AutomaticSize = Enum.AutomaticSize.X;
+        LayoutOrder = 1;
+        ZIndex = 1;
+        Parent = CenteredTitle;
+    });
+
+    Library:ApplyTextStroke(TitleAccent);
+    Library:AddToRegistry(TitleAccent, { TextColor3 = 'AccentColor' });
+
+    local TitleRest = Library:Create('TextLabel', {
+        Name = 'TitleRest';
+        BackgroundTransparency = 1;
+        Font = Library.Font;
+        Text = Config.TitleRest or (Config.Title and Config.Title ~= 'No title' and Config.Title ~= 'oxt' and Config.Title ~= 'oxtyocin' and Config.Title) or 'yocin';
+        TextColor3 = Library.FontColor;
+        TextSize = 16;
+        TextStrokeTransparency = 0;
+        Size = UDim2.new(0, 0, 1, 0);
+        AutomaticSize = Enum.AutomaticSize.X;
+        LayoutOrder = 2;
+        ZIndex = 1;
+        Parent = CenteredTitle;
+    });
+
+    Library:ApplyTextStroke(TitleRest);
+    Library:AddToRegistry(TitleRest, { TextColor3 = 'FontColor' });
 
     local SubTitleLabel = Library:Create('TextLabel', {
         Name = 'SubTitleLabel';
         BackgroundTransparency = 1;
         Font = Library.Font;
         TextSize = 14;
-        TextColor3 = Config.SubTitleColor or Color3.fromRGB(20, 75, 170);
+        TextColor3 = Library:GetDarkerColor(Library.AccentColor);
         TextXAlignment = Enum.TextXAlignment.Right;
         AnchorPoint = Vector2.new(1, 0);
-        Position = UDim2.new(1, -10, 0, 0);
+        Position = UDim2.new(1, -12, 0, 0);
         Size = UDim2.new(0, 100, 0, 25);
-        Text = Config.SubTitle or '';
+        Text = Config.SubTitle or 'RIVALS';
         RichText = true;
         ZIndex = 2;
         Parent = Inner;
     });
 
     Library:ApplyTextStroke(SubTitleLabel);
+
+    Library:AddToRegistry(SubTitleLabel, {
+        TextColor3 = function()
+            return Library:GetDarkerColor(Library.AccentColor)
+        end
+    });
 
     local MainSectionOuter = Library:Create('Frame', {
         BackgroundColor3 = Library.BackgroundColor;
@@ -3074,13 +3126,18 @@ Library:AddToRegistry(Inner, {
     });
 
     function Window : SetWindowTitle(Title)
-        WindowLabel.Text = Title or '';
+        Window : SetTitle(Title);
     end;
 
-    function Window : SetTitle(Text, Alignment)
-        WindowLabel.Text = Text or '';
-        if Alignment then
-            WindowLabel.TextXAlignment = Alignment;
+    function Window : SetTitle(AccentText, RestText)
+        if RestText then
+            TitleAccent.Text = AccentText or '';
+            TitleRest.Text = RestText or '';
+        elseif type(AccentText) == 'string' and AccentText:find('^oxt') then
+            TitleAccent.Text = 'oxt';
+            TitleRest.Text = AccentText:sub(4);
+        else
+            TitleRest.Text = AccentText or '';
         end;
     end;
 

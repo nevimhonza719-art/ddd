@@ -2958,6 +2958,7 @@ end
 
 local Window = {
     Tabs = {};
+    TabPadding = Config.TabPadding or 2;
 };
 
 local Outer = Library:Create('Frame', {
@@ -3115,13 +3116,13 @@ Library:AddToRegistry(Inner, {
     local TabArea = Library:Create('Frame', {
         BackgroundTransparency = 1;
         Position = UDim2.new(0, 8, 0, 8);
-        Size = UDim2.new(1, -16, 0, 21);
+        Size = UDim2.new(1, -16, 0, 26);
         ZIndex = 1;
         Parent = MainSectionInner;
     });
 
     local TabListLayout = Library:Create('UIListLayout', {
-        Padding = UDim.new(0, Config.TabPadding);
+        Padding = UDim.new(0, Window.TabPadding or Config.TabPadding or 2);
         FillDirection = Enum.FillDirection.Horizontal;
         SortOrder = Enum.SortOrder.LayoutOrder;
         Parent = TabArea;
@@ -3130,8 +3131,8 @@ Library:AddToRegistry(Inner, {
     local TabContainer = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.OutlineColor;
-        Position = UDim2.new(0, 8, 0, 30);
-        Size = UDim2.new(1, -16, 1, -38);
+        Position = UDim2.new(0, 8, 0, 35);
+        Size = UDim2.new(1, -16, 1, -43);
         ZIndex = 2;
         Parent = MainSectionInner;
     });
@@ -3180,12 +3181,10 @@ Library:AddToRegistry(Inner, {
             SubTabList = {};
         };
 
-        local TabButtonWidth = Library:GetTextBounds(Name, Library.Font, 16);
-
         local TabButton = Library:Create('Frame', {
             BackgroundColor3 = Library.BackgroundColor;
             BorderColor3 = Library.OutlineColor;
-            Size = UDim2.new(0, TabButtonWidth + 8 + 4, 1, 0);
+            Size = UDim2.new(1, 0, 1, 0);
             ZIndex = 1;
             Parent = TabArea;
         });
@@ -3200,6 +3199,7 @@ Library:AddToRegistry(Inner, {
             Size = UDim2.new(1, 0, 1, -1);
             Text = Name;
             TextColor3 = Color3.fromRGB(115, 122, 135);
+            TextXAlignment = Enum.TextXAlignment.Center;
             ZIndex = 1;
             Parent = TabButton;
         });
@@ -3829,14 +3829,29 @@ Library:AddToRegistry(Inner, {
             end;
         end);
 
+        Tab.Button = TabButton;
+        Tab.Label = TabButtonLabel;
+        Tab.Frame = TabFrame;
+
         --This was the first tab added, so we show it by default.
         if #TabContainer:GetChildren() == 1 then
             Tab : ShowTab();
         end;
 
+        table.insert(Window.Tabs, Tab);
         Window.Tabs[Name] = Tab;
+
+        local TabCount = #Window.Tabs;
+        local Padding = Window.TabPadding or 2;
+        for _, TabItem in ipairs(Window.Tabs) do
+            -- Distribute width evenly across the entire tab container bar
+            TabItem.Button.Size = UDim2.new(1 / TabCount, -Padding, 1, 0);
+        end;
+
         return Tab;
     end;
+
+    Window.CreateTab = Window.AddTab;
 
 local ModalElement = Library:Create('TextButton', {
     BackgroundTransparency = 1;

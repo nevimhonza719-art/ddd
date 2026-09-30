@@ -2394,7 +2394,7 @@ Library:AddToRegistry(Button, {
     });
 
 local ButtonLabel = Library:CreateLabel({
-    Active = true;
+    Active = false;
     Size = UDim2.new(1, -6, 1, 0);
     Position = UDim2.new(0, 6, 0, 0);
     TextSize = 14;
@@ -2428,7 +2428,7 @@ ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor;
 Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor';
 end;
 
-local function HandleClick(Input)
+ButtonLabel.InputBegan:Connect(function(Input)
     if Input.UserInputType == Enum.UserInputType.MouseButton1 then
         local Try = not Selected;
 
@@ -2465,10 +2465,7 @@ Library:SafeCallback(Dropdown.Changed, Dropdown.Value);
 Library:AttemptSave();
 end;
 end;
-end
-
-ButtonLabel.InputBegan:Connect(HandleClick);
-Button.InputBegan:Connect(HandleClick);
+end);
 
 Table:UpdateButton();
 Dropdown:Display();
@@ -3893,6 +3890,20 @@ Library:AddToRegistry(Inner, {
                     Parent = SubTab.CategoryBarInner;
                 });
 
+                local CategoryHighlight = Library:Create('Frame', {
+                    BackgroundColor3 = Library.AccentColor;
+                    BorderSizePixel = 0;
+                    Position = UDim2.new(0, 0, 1, -1);
+                    Size = UDim2.new(1, 0, 0, 1);
+                    Visible = false;
+                    ZIndex = 7;
+                    Parent = CategoryButton;
+                });
+
+                Library:AddToRegistry(CategoryHighlight, {
+                    BackgroundColor3 = 'AccentColor';
+                });
+
                 local CategoryButtonLabel = Library:CreateLabel({
                     Size = UDim2.new(1, 0, 1, 0);
                     TextSize = 13;
@@ -3920,9 +3931,10 @@ Library:AddToRegistry(Inner, {
                         Library.RegistryMap[CategoryButton].Properties.BackgroundColor3 = nil;
                     end;
 
-                    CategoryButtonLabel.TextColor3 = Color3.fromRGB(255, 255, 255);
+                    CategoryHighlight.Visible = true;
+                    CategoryButtonLabel.TextColor3 = Library.FontColor;
                     if Library.RegistryMap[CategoryButtonLabel] then
-                        Library.RegistryMap[CategoryButtonLabel].Properties.TextColor3 = nil;
+                        Library.RegistryMap[CategoryButtonLabel].Properties.TextColor3 = 'FontColor';
                     end;
                 end;
 
@@ -3934,6 +3946,7 @@ Library:AddToRegistry(Inner, {
                         Library.RegistryMap[CategoryButton].Properties.BackgroundColor3 = nil;
                     end;
 
+                    CategoryHighlight.Visible = false;
                     CategoryButtonLabel.TextColor3 = Color3.fromRGB(115, 122, 135);
                     if Library.RegistryMap[CategoryButtonLabel] then
                         Library.RegistryMap[CategoryButtonLabel].Properties.TextColor3 = nil;
@@ -3975,6 +3988,7 @@ Library:AddToRegistry(Inner, {
 
                 Category.Button = CategoryButton;
                 Category.Frame = CategoryFrame;
+                Category.Highlight = CategoryHighlight;
                 Category.Label = CategoryButtonLabel;
 
                 table.insert(SubTab.CategoryList, Category);

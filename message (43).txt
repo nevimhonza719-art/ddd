@@ -1572,7 +1572,6 @@ do
         Groupbox:Resize();
 
         Options[Idx] = CurveEditor;
-        self:Addons = self:Addons or {};
         return CurveEditor;
     end;
 
